@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: imposter-ingress
+  labels:
+    name: imposter-ingress
+  namespace: default  
+spec:
+  rules:
+  - host: imposter-playground.com
+    http:
+      paths:
+        - path: "/" 
+          pathType: Prefix
+          backend:
+            service:
+              name: imposter-service
+              port:
+                number: 80
+                

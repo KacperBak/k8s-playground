@@ -14,6 +14,11 @@ Start cluster with hyperkit VM
 minikube start --vm-driver=hyperkit
 ````
 
+Start cluster with Docker
+````
+minikube start --vm-driver=docker
+````
+
 Get minikube status
 ````
 minikube status
@@ -120,6 +125,18 @@ Events:
 
 
 IMPORTANT: See content in `deployment` folder for further details
+
+## Ingress
+
+## Starts Nginx ingress controller implementation in Minikube
+```
+minikube addons enable ingress
+```
+
+## Get actuall domain/ip mapping of ingress controller
+```
+k get ingress -n kubernetes-dashboard --watch
+```
 
 ## Issues
 ````
