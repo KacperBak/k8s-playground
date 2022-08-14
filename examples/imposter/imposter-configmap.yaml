@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: imposter-configmap
+  namespace: default
+data:
+  named-example.groovy: |2
+
+    // Example of returning a specific example, based on the request URI.
+
+    if (context.request.pathParams.petId == '1') {
+        respond().withExampleName('catExample')
+
+    } else if (context.request.pathParams.petId == '2') {
+        respond().withExampleName('dogExample')
+    } else if (context.request.pathParams.petId == '3') {
+        respond()
+        .withStatusCode(200)
+        .withFile('tortoise.json')
+        .withDelayRange(500, 1500)
+    } else {
+        respond()
+        .withStatusCode(404)
+        .withData('')
+    }
+  openapi3-with-multiple-examples.yaml: |
+    openapi: "3.0.0"
+    info:
+      version: 1.0.0
+      title: Swagger Petstore
+      license:
+        name: MIT
+    servers:
+      - url: http://petstore.swagger.io
+    paths:
+      /pets/{petId}:
+        get:
+          summary: Info for a specific pet
+          operationId: showPetById
+          tags:
+            - pets
+          parameters:
+            - name: petId
+              in: path
+              required: true
+              description: The id of the pet to retrieve
+              schema:
+                type: string
+          responses:
+            '200':
+              description: Expected response to a valid request
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Pet"
+                  examples:
+                    # the example to return is selected by the script
+                    catExample:
+                      value: |-
+                        { "id": 1, "name": "Cat" }
+                    dogExample:
+                      value: |-
+                        { "id": 2, "name": "Dog" }
+            default:
+              description: unexpected error
+              content:
+                application/json:
+                  schema:
+                    $ref: "#/components/schemas/Error"
+    components:
+      requestBodies:
+        Pet:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+          description: The pet to add
+          required: true
+      schemas:
+        Pet:
+          type: object
+          required:
+            - id
+            - name
+          properties:
+            id:
+              type: integer
+              format: int64
+            name:
+              type: string
+            tag:
+              type: string
+        Pets:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pet"
+        Error:
+          type: object
+          required:
+            - code
+            - message
+          properties:
+            code:
+              type: integer
+              format: int32
+            message:
+              type: string
+  scripted-config.json: |
+    {
+      "plugin": "openapi",
+      "response": {
+        "scriptFile": "named-example.groovy"
+      },
+      "specFile": "openapi3-with-multiple-examples.yaml"
+    }
+  tortoise.json: '{ "id": 3, "name": "Tortoise" }'

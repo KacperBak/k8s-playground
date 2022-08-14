@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: imposter-deployment
+  labels:
+    app: imposter-mock
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: imposter-mock
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: imposter-mock
+    spec:
+      containers:
+        - name: imposter-openapi-petstore
+          image: registry.docker.com/outofcoffee/imposter-openapi:3.0.4
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: imposter-vol1
+              mountPath: /opt/imposter/config
+          resources:
+            requests:
+              memory: "128M"
+              cpu: "500m"
+            limits:
+              memory: "256M"
+              cpu: "1000m"
+      volumes:
+        - name: imposter-vol1
+          configMap:
+            name: imposter-configmap
+            items:
+            - key: "named-example.groovy"
+              path: "named-example.groovy"
+            - key: "tortoise.json"
+              path: "tortoise.json"
+            - key: "scripted-config.json"
+              path: "scripted-config.json"
+            - key: "openapi3-with-multiple-examples.yaml"
+              path: "openapi3-with-multiple-examples.yaml"
