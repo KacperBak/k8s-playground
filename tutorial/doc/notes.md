@@ -14,6 +14,11 @@ Start cluster with hyperkit VM
 minikube start --vm-driver=hyperkit
 ````
 
+Start cluster with Docker
+````
+minikube start --vm-driver=docker
+````
+
 Get minikube status
 ````
 minikube status
