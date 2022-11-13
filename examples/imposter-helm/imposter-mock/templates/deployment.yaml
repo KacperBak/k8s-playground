@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-deployment
+  labels:
+    app: {{ .Chart.Name }}
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-openapi-petstore
+          image: registry.docker.com/outofcoffee/imposter-openapi:3.0.4
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: {{ .Chart.Name }}-vol1
+              mountPath: /opt/imposter/config
+          resources:
+            requests:
+              memory: "128M"
+              cpu: "500m"
+            limits:
+              memory: "256M"
+              cpu: "1000m"
+      volumes:
+        - name: {{ .Chart.Name }}-vol1
+          configMap:
+            name: {{ .Chart.Name }}-configmap
+            items:
+            - key: "named-example.groovy"
+              path: "named-example.groovy"
+            - key: "tortoise.json"
+              path: "tortoise.json"
+            - key: "scripted-config.json"
+              path: "scripted-config.json"
+            - key: "openapi3-with-multiple-examples.yaml"
+              path: "openapi3-with-multiple-examples.yaml"

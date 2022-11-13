@@ -1,0 +1,13 @@
+# Default values for imposter-mock.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+# TODO: create a hook for configmap creation/generation
+# - before install the chart, create configmap
+
+# TODO: namespace
+# - can be passed via 'helm install --namespace default'
+# - can overriden directly in the manifest files
+# - can be if/else condiction in a helper method
