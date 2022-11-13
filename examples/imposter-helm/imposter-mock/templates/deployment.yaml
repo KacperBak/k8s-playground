@@ -1,61 +1,46 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "imposter-mock.fullname" . }}
+  name: {{ .Chart.Name }}-deployment
   labels:
-    {{- include "imposter-mock.labels" . | nindent 4 }}
+    app: {{ .Chart.Name }}
+  namespace: default
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "imposter-mock.selectorLabels" . | nindent 6 }}
+      app: {{ .Chart.Name }}
+  replicas: 1
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "imposter-mock.selectorLabels" . | nindent 8 }}
+        app: {{ .Chart.Name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "imposter-mock.serviceAccountName" . }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ .Chart.Name }}-openapi-petstore
+          image: registry.docker.com/outofcoffee/imposter-openapi:3.0.4
+          imagePullPolicy: Always
           ports:
-            - name: http
-              containerPort: 80
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
+            - containerPort: 8080
+          volumeMounts:
+            - name: {{ .Chart.Name }}-vol1
+              mountPath: /opt/imposter/config
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+            requests:
+              memory: "128M"
+              cpu: "500m"
+            limits:
+              memory: "256M"
+              cpu: "1000m"
+      volumes:
+        - name: {{ .Chart.Name }}-vol1
+          configMap:
+            name: {{ .Chart.Name }}-configmap
+            items:
+            - key: "named-example.groovy"
+              path: "named-example.groovy"
+            - key: "tortoise.json"
+              path: "tortoise.json"
+            - key: "scripted-config.json"
+              path: "scripted-config.json"
+            - key: "openapi3-with-multiple-examples.yaml"
+              path: "openapi3-with-multiple-examples.yaml"

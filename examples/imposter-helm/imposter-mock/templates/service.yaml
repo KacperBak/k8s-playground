@@ -1,15 +1,16 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "imposter-mock.fullname" . }}
+  name: {{ .Chart.Name }}-service
   labels:
-    {{- include "imposter-mock.labels" . | nindent 4 }}
+    app: {{ .Chart.Name }}
+  namespace: default
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
   selector:
-    {{- include "imposter-mock.selectorLabels" . | nindent 4 }}
+    app: {{ .Chart.Name }}
+  ports:
+    - name: {{ .Chart.Name }}-tcp
+      port: 80
+      protocol: TCP
+      targetPort: 8080
+  type: ClusterIP    
