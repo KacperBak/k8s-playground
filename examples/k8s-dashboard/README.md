@@ -71,6 +71,9 @@ Status code distribution:
   [200]	1000 responses
 ````
 
+## TODO
+- Use a helm chart to deploy the board [Details](https://artifacthub.io/packages/helm/k8s-dashboard/kubernetes-dashboard).
+
 ## Sources
 - https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
 - https://github.com/rakyll/hey
